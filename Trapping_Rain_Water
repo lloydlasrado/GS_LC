@@ -1,0 +1,78 @@
+public int trap(int[] height) {
+    int left = 0, right = height.length - 1;
+    int maxLeft = 0, maxRight = 0;
+    int water = 0;
+
+    while (left < right) {
+        if (height[left] <= height[right]) {
+            // Left side is the bottleneck
+            if (height[left] >= maxLeft) {
+                maxLeft = height[left];  // update max, no water here
+            } else {
+                water += maxLeft - height[left];  // trapped
+            }
+            left++;
+        } else {
+            // Right side is the bottleneck
+            if (height[right] >= maxRight) {
+                maxRight = height[right];
+            } else {
+                water += maxRight - height[right];
+            }
+            right--;
+        }
+    }
+    return water;
+}
+// Time: O(n)   Space: O(1)
+
+
+public int trapWithLeaks(int[] height) {
+    int n = height.length;
+    int water = 0;
+    int left = 0;
+
+    while (left < n) {
+        // Find next non-zero start
+        if (height[left] == 0) {
+            left++;
+            continue;
+        }
+
+        // Find the boundary of this non-leaking section
+        int right = left + 1;
+        while (right < n && height[right] != 0) {
+            right++;
+        }
+        // right is now at a zero OR past the end
+
+        if (right >= n) {
+            // No leak on the right — process normally with two pointers
+            water += trapSegment(height, left, n - 1);
+            break;
+        }
+
+        // height[right] == 0: this section has a leak on the right
+        // Water cannot be trapped — skip entire section
+        left = right + 1;
+    }
+    return water;
+}
+
+private int trapSegment(int[] height, int lo, int hi) {
+    int left = lo, right = hi;
+    int maxLeft = 0, maxRight = 0, water = 0;
+
+    while (left < right) {
+        if (height[left] <= height[right]) {
+            if (height[left] >= maxLeft) maxLeft = height[left];
+            else water += maxLeft - height[left];
+            left++;
+        } else {
+            if (height[right] >= maxRight) maxRight = height[right];
+            else water += maxRight - height[right];
+            right--;
+        }
+    }
+    return water;
+}
