@@ -1,0 +1,19 @@
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        //base
+        if(nums.length == 0)
+            return 0;
+        //declare
+        int min = Integer.MAX_VALUE, len = nums.length, left = 0, prefix_sum = 0;
+
+        for(int right = 0; right < len; right++) {
+            prefix_sum += nums[right];
+            while(prefix_sum >= target) {
+                min = Math.min(min, right - left + 1);
+                prefix_sum -= nums[left++];
+            }
+        }
+        return min == Integer.MAX_VALUE ? 0 : min;
+        // TC : O(n)
+    }
+}
