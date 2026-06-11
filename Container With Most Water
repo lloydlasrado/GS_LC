@@ -1,0 +1,25 @@
+class Solution {
+    public int maxArea(int[] height) {
+        //base
+        if(height.length == 0)
+            return 0;
+        
+        //declare
+        int left = 0, right = height.length - 1, area = 0, maxArea = 0, width = 0, min_height = Integer.MAX_VALUE;
+
+        //2 pointer
+        while(left < right) {
+            width = right - left;
+            min_height = Math.min(height[left], height[right]);
+            area = width * min_height;
+            maxArea = Math.max(maxArea, area);
+            if(height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+        return maxArea;
+    }
+}
+//Time complexity: O(n). Single pass.
