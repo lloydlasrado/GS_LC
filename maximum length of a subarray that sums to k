@@ -1,0 +1,22 @@
+class Solution {
+    public int maxSubArrayLen(int[] nums, int k) {
+        //base
+        if(nums.length == 0)
+            return 0;
+        
+        //declare
+        int len = nums.length, max_len = 0, prefix_sum = 0;
+        Map<Integer, Integer> sumToIndex = new HashMap<>();
+        sumToIndex.put(0, -1);
+        for(int i = 0; i < len; i++) {
+            prefix_sum += nums[i];
+            int diff = prefix_sum - k;
+            if(sumToIndex.containsKey(diff)) {
+                max_len = Math.max(max_len, i - sumToIndex.get(diff));
+            }
+            sumToIndex.putIfAbsent(prefix_sum, i);
+        }
+        return max_len;
+        // TC : O(n)
+    }
+}
