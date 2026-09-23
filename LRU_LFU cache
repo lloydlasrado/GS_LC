@@ -1,0 +1,135 @@
+class LRUCache {
+    class Node {
+        int key = 0, value = 0;
+        Node prev, next;
+
+        public Node(int key, int value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    Node head, tail;
+    int capacity = 0, size = 0;
+    Map<Integer, Node> map;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        this.size = 0;
+        this.map = new HashMap<>();
+        this.head = new Node(0, 0);
+        this.tail = new Node(0, 0);
+        this.head.next = this.tail;
+        this.tail.prev = this.head;
+    }
+    
+    public int get(int key) {
+        if(this.map.containsKey(key)) {
+            Node cur = this.map.get(key);
+            remove(key);
+            addHead(key, cur.value);
+            return cur.value;
+        } 
+        return -1;
+    }
+    
+    public void put(int key, int value) {
+        if(this.map.containsKey(key)) {
+            remove(key);
+        }
+        addHead(key, value);
+    }
+
+    private void remove(int key) {
+        Node cur = this.map.get(key);
+        Node cur_next = cur.next;
+        cur.prev.next = cur_next;
+        cur_next.prev = cur.prev;
+        this.size--;
+        this.map.remove(key);
+    }
+
+    private void addHead(int key, int value) {
+        Node newNode = new Node(key, value);
+        Node head_next = this.head.next;
+        this.head.next = newNode;
+        newNode.next = head_next;
+        head_next.prev = newNode;
+        newNode.prev = this.head;
+        this.map.put(key, newNode);
+        this.size++;
+        if(this.size > this.capacity) {
+            Node tail_prev = this.tail.prev;
+            remove(tail_prev.key);
+        }
+    }
+}
+
+//Time complexity: O(1) for both get and put.
+
+// TC  LFU : O(1)
+class LFUCache {
+
+    // key: original key, value: frequency and original value.
+    private Map<Integer, Pair<Integer, Integer>> cache;
+    // key: frequency, value: All keys that have the same frequency.
+    private Map<Integer, LinkedHashSet<Integer>> frequencies;
+    private int minf;
+    private int capacity;
+
+    private void insert(int key, int frequency, int value) {
+        cache.put(key, new Pair<>(frequency, value));
+        frequencies.putIfAbsent(frequency, new LinkedHashSet<>());
+        frequencies.get(frequency).add(key);
+    }
+
+    public LFUCache(int capacity) {
+        cache = new HashMap<>();
+        frequencies = new HashMap<>();
+        minf = 0;
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        Pair<Integer, Integer> frequencyAndValue = cache.get(key);
+        if (frequencyAndValue == null) {
+            return -1;
+        }
+        final int frequency = frequencyAndValue.getKey();
+        final Set<Integer> keys = frequencies.get(frequency);
+        keys.remove(key);
+        if (keys.isEmpty()) {
+            frequencies.remove(frequency);
+
+            if (minf == frequency) {
+                ++minf;
+            }
+        }
+        final int value = frequencyAndValue.getValue();
+        insert(key, frequency + 1, value);
+        return value;
+    }
+
+    public void put(int key, int value) {
+        if (capacity <= 0) {
+            return;
+        }
+        Pair<Integer, Integer> frequencyAndValue = cache.get(key);
+        if (frequencyAndValue != null) {
+            cache.put(key, new Pair<>(frequencyAndValue.getKey(), value));
+            get(key);
+            return;
+        }
+        if (capacity == cache.size()) {
+            final Set<Integer> keys = frequencies.get(minf);
+            final int keyToDelete = keys.iterator().next();
+            cache.remove(keyToDelete);
+            keys.remove(keyToDelete);
+            if (keys.isEmpty()) {
+                frequencies.remove(minf);
+            }
+        }
+        minf = 1;
+        insert(key, 1, value);
+    }
+}
