@@ -64,11 +64,11 @@ class Solution {
 
         //declare
         List<String> output = new LinkedList<>();
-        dfs(output, "", 0, 0, n);
+        backtrackDFS(output, "", 0, 0, n);
         return output;
     }
 
-    private void dfs(List<String> output, String current, int open, int close, int n) {
+    private void backtrackDFS(List<String> output, String current, int open, int close, int n) {
         //base
         if(current.length() == n * 2) {
             output.add(current);
