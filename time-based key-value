@@ -1,0 +1,23 @@
+class TimeMap {
+    private HashMap<String, TreeMap<Integer, String>> map = new HashMap();
+
+    public TimeMap() {
+        
+    }
+    
+    public void set(String key, String value, int timestamp) { // O(1)
+        if(!map.containsKey(key))
+            map.put(key, new TreeMap<Integer, String>());
+        map.get(key).put(timestamp, value);
+    }
+    
+    public String get(String key, int timestamp) { // O(log n binary search)
+        if(!map.containsKey(key))
+            return "";
+        
+        Integer floor_key = map.get(key).floorKey(timestamp);
+        if(floor_key == null)
+            return "";
+        return map.get(key).get(floor_key);
+    }
+}
